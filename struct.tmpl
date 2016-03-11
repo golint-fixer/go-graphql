@@ -2,9 +2,7 @@ package models
 {{range .}}
 	type {{.TableName}} struct {
 	{{range .Cols}}
-  	{{ .ColumnName }} {{ .ColumnType }}  `json:"{{ .ColumnName }} "`
+  	{{ .ColumnName }} {{ .ColumnType }}  `json:"{{ .DBColumnName }} "`
 	{{end}}
 	}
 {{end}}
-
-

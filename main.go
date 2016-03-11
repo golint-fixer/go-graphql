@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"unicode"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -32,8 +33,9 @@ func main() {
 	handleErr(err)
 
 	type Column struct {
-		ColumnName string
-		ColumnType string
+		ColumnName   string
+		ColumnType   string
+		DBColumnName string
 	}
 	type Table struct {
 		TableName string
@@ -57,7 +59,8 @@ func main() {
 			var colType string
 			err = columns.Scan(&colName, &colType)
 			handleErr(err)
-			col = append(col, Column{colName, colType})
+			formatColName(colName)
+			col = append(col, Column{formatColName(colName), convertType(colType), colName})
 		}
 		data[tableID].Cols = col
 		tableID++
@@ -66,6 +69,66 @@ func main() {
 	handleErr(err)
 	t.Execute(os.Stdout, data)
 
+}
+
+func formatColName(name string) string {
+	arr := []byte(name)
+	output := make([]byte, 0)
+	capNextChar := false
+	for i, char := range arr {
+		if i == 0 || capNextChar {
+			output = append(output, byte(unicode.ToUpper(rune(char))))
+			capNextChar = false
+		} else if char == '_' {
+			capNextChar = true
+		} else {
+			output = append(output, char)
+			capNextChar = false
+		}
+	}
+	return string(output)
+}
+
+func convertType(dbType string) string {
+	switch dbType {
+	// Dates represented as strings
+	case "time", "date", "datetime":
+		fallthrough
+
+	// Buffers represented as strings
+	case "bit", "blob", "tinyblob", "longblob", "mediumblob", "binary", "varbinary":
+		fallthrough
+
+	// Numbers that may exceed float precision, repesent as string
+	case "bigint", "decimal", "numeric", "geometry", "bigserial":
+		fallthrough
+
+	// Network addresses represented as strings
+	case "cidr", "inet", "macaddr":
+		fallthrough
+
+	// Strings
+	case "set", "char", "text", "uuid", "varchar", "nvarchar", "tinytext", "longtext", "character", "mediumtext":
+		return "string"
+	// Integers
+	case "int", "year", "serial", "integer", "tinyint", "smallint", "mediumint", "timestamp":
+		return "int"
+	// Floats
+	case "real", "float", "double", "double precision":
+		return "float"
+
+	// Booleans
+	case "boolean":
+		return "bool"
+
+	// Enum special case
+	case "enum":
+		return "string"
+
+	default:
+		return "string"
+	}
+	return "string"
 }
 
 func handleErr(err error) {
