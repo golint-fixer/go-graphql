@@ -53,7 +53,7 @@ func main() {
 		err = tables.Scan(&tableName)
 		handleErr(err)
 		data[tableID].TableName = tableName
-		col := make([]Column, 0)
+		var col []Column
 		columns, err := conn.Query(fmt.Sprintf("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '%v' AND table_schema = '%v';", tableName, *schema))
 
 		for columns.Next() {
@@ -87,7 +87,7 @@ func main() {
 // formatColName formats the column name into camel case
 func formatColName(name string) string {
 	arr := []byte(name)
-	output := make([]byte, 0)
+	var output []byte
 	capNextChar := false
 	for i, char := range arr {
 		if i == 0 || capNextChar {
