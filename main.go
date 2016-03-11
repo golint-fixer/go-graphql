@@ -143,7 +143,6 @@ func convertType(dbType string) string {
 	default:
 		return "string"
 	}
-	return "string"
 }
 
 // handleErr handles errors in a consistant way
