@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"os/exec"
 	"unicode"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -20,6 +21,7 @@ func main() {
 	password := flag.String("password", "", "password")
 	schema := flag.String("schema", "", "schema")
 	port := flag.String("port", "", "port")
+	output := flag.String("output", "", "output")
 	flag.Parse()
 
 	//db, err := sql.Open("postgres", fmt.Sprintf("host=%v user=%v dbname=%v password=%v port=%v sslmode=disable", hostname, username, schema, password, port))
@@ -67,8 +69,13 @@ func main() {
 	}
 	t, err := template.ParseFiles("struct.tmpl")
 	handleErr(err)
-	t.Execute(os.Stdout, data)
-
+	f, err := os.Create(*output)
+	handleErr(err)
+	defer f.Close()
+	t.Execute(f, data)
+	cmd := exec.Command("gofmt", "-w", f.Name())
+	err = cmd.Run()
+	handleErr(err)
 }
 
 func formatColName(name string) string {
