@@ -67,17 +67,24 @@ func main() {
 		data[tableID].Cols = col
 		tableID++
 	}
+
+	// process template
 	t, err := template.ParseFiles("struct.tmpl")
 	handleErr(err)
+
+	// create file
 	f, err := os.Create(*output)
 	handleErr(err)
 	defer f.Close()
 	t.Execute(f, data)
+
+	// format the file
 	cmd := exec.Command("gofmt", "-w", f.Name())
 	err = cmd.Run()
 	handleErr(err)
 }
 
+// formatColName formats the column name into camel case
 func formatColName(name string) string {
 	arr := []byte(name)
 	output := make([]byte, 0)
@@ -96,6 +103,7 @@ func formatColName(name string) string {
 	return string(output)
 }
 
+// convertType converts the db col type to the corresponding go type
 func convertType(dbType string) string {
 	switch dbType {
 	// Dates represented as strings
@@ -138,6 +146,7 @@ func convertType(dbType string) string {
 	return "string"
 }
 
+// handleErr handles errors in a consistant way
 func handleErr(err error) {
 	if err != nil {
 		panic(err)
