@@ -3,6 +3,6 @@ package models
 	type {{.TableName}} struct {
 	{{range .Cols}}
   	{{ .ColumnName }} {{ .ColumnType }}  `json:"{{ .DBColumnName }} "`
-	{{end}}
+	{{- end}}
 	}
 {{end}}

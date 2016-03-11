@@ -52,7 +52,7 @@ func main() {
 		var tableName string
 		err = tables.Scan(&tableName)
 		handleErr(err)
-		data[tableID].TableName = tableName
+		data[tableID].TableName = formatColName(tableName)
 		var col []Column
 		columns, err := conn.Query(fmt.Sprintf("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '%v' AND table_schema = '%v';", tableName, *schema))
 
