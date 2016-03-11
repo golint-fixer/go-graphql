@@ -6,9 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSomething(t *testing.T) {
-
-	// assert equality
+func TestConvertType(t *testing.T) {
 	assert.Equal(t, "string", convertType("time"), "should be string")
 	assert.Equal(t, "string", convertType("datetime"), "should be string")
 	assert.Equal(t, "string", convertType("char"), "should be string")
@@ -19,4 +17,11 @@ func TestSomething(t *testing.T) {
 	assert.Equal(t, "int", convertType("timestamp"), "should be integer")
 	assert.Equal(t, "bool", convertType("boolean"), "should be bool")
 	assert.Equal(t, "string", convertType("enum"), "should be string")
+}
+func TestTormatColName(t *testing.T) {
+	assert.Equal(t, "Id", formatColName("id"), "should be Id")
+	assert.Equal(t, "UserName", formatColName("user_name"), "should be UserName")
+	assert.Equal(t, "Username", formatColName("username"), "should be Username")
+	assert.Equal(t, "Col5", formatColName("col_5"), "should be Col5")
+	assert.Equal(t, "Code", formatColName("code"), "should be Code")
 }
