@@ -1,0 +1,10 @@
+package models
+{{range .}}
+	type {{.TableName}} struct {
+	{{range .Cols}}
+  	{{ .ColumnName }} {{ .ColumnType }}  `json:"{{ .ColumnName }} "`
+	{{end}}
+	}
+{{end}}
+
+
