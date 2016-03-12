@@ -1,0 +1,20 @@
+package routes
+
+import (
+	"github.com/graphql-go/graphql"
+)
+
+{{range .}}
+	var {{.TableName}}Type = graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "{{.TableName}}",
+			Fields: graphql.Fields{
+				{{range .Cols}}
+					"{{ .ColumnName }}": &graphql.Field{
+						Type: graphql.{{ .ColumnType }},
+					},
+				{{- end}}
+			},
+		},
+	)
+{{end}}

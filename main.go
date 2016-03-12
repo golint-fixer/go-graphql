@@ -68,18 +68,31 @@ func main() {
 		tableID++
 	}
 
-	// process template
-	t, err := template.ParseFiles("struct.tmpl")
+	// process templates
+	structTemplate, err := template.ParseFiles("struct.tmpl")
+	handleErr(err)
+	typesTemplate, err := template.ParseFiles("types.tmpl")
 	handleErr(err)
 
-	// create file
-	f, err := os.Create(*output)
+	// create directory
+	if _, err := os.Stat(*output); os.IsNotExist(err) {
+		os.Mkdir(*output, 0755)
+	}
+
+	// create the files
+	structGo, err := os.Create(*output + "/struct.go")
 	handleErr(err)
-	defer f.Close()
-	t.Execute(f, data)
+	defer structGo.Close()
+	typesGo, err := os.Create(*output + "/types.go")
+	handleErr(err)
+	defer typesGo.Close()
+
+	// exec templates
+	structTemplate.Execute(structGo, data)
+	typesTemplate.Execute(typesGo, data)
 
 	// format the file
-	cmd := exec.Command("gofmt", "-w", f.Name())
+	cmd := exec.Command("gofmt", "-w", *output)
 	err = cmd.Run()
 	handleErr(err)
 }
