@@ -3,11 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
+
+var expected = []table{
+	table{"Tableone", []column{column{"Id", "int", "id"}, column{"Name", "string", "name"}}},
+	table{"Tabletwo", []column{column{"Id", "int", "id"}, column{"Name", "string", "name"}}},
+}
 
 func TestConvertType(t *testing.T) {
 	t.Parallel()
@@ -35,11 +41,6 @@ func TestTormatColName(t *testing.T) {
 }
 func TestGetTableInfo(t *testing.T) {
 	t.Parallel()
-	var expected []table
-	colOne := column{"Id", "int", "id"}
-	colTwo := column{"Name", "string", "name"}
-	expected = append(expected, table{"Tableone", []column{colOne, colTwo}})
-	expected = append(expected, table{"Tabletwo", []column{colOne, colTwo}})
 
 	// Open new mock database
 	db, mock, err := sqlmock.New()
@@ -69,4 +70,26 @@ func TestHandleError(t *testing.T) {
 	assert.Panics(t, func() {
 		handleErr(errors.New("some error"))
 	}, "Calling handleErr() should panic")
+}
+func TestProcessTemplates(t *testing.T) {
+	t.Parallel()
+	var dir = "dist"
+
+	// delete it if it exists
+	if _, err := os.Stat(dir); err == nil {
+		os.RemoveAll(dir)
+	}
+	processTemplates(expected, "dist")
+
+	_, err := os.Stat(dir)
+	assert.NoError(t, err, "directory should exist")
+	f, err := os.Stat(dir + "/types.go")
+	assert.NoError(t, err, "types.go should exist")
+	assert.True(t, f.Size() > 0, "file should not be empty")
+	f, err = os.Stat(dir + "/struct.go")
+	assert.NoError(t, err, "struct.go should exist")
+	assert.True(t, f.Size() > 0, "file should not be empty")
+
+	// clean up
+	os.RemoveAll(dir)
 }

@@ -48,22 +48,29 @@ func main() {
 	// get table structure from DB
 	data := getTableInfo(conn, *schema)
 
-	// process templates
+	// get 'er done
+	processTemplates(data, *output)
+}
+
+// processTemplates fills in the templates with data, puts them in the output
+// directory and fmt them
+func processTemplates(data []table, output string) {
+	// parse templates
 	structTemplate, err := template.ParseFiles("struct.tmpl")
 	handleErr(err)
 	typesTemplate, err := template.ParseFiles("types.tmpl")
 	handleErr(err)
 
 	// create directory
-	if _, err := os.Stat(*output); os.IsNotExist(err) {
-		os.Mkdir(*output, 0755)
+	if _, err := os.Stat(output); os.IsNotExist(err) {
+		os.Mkdir(output, 0755)
 	}
 
 	// create the files
-	structGo, err := os.Create(*output + "/struct.go")
+	structGo, err := os.Create(output + "/struct.go")
 	handleErr(err)
 	defer structGo.Close()
-	typesGo, err := os.Create(*output + "/types.go")
+	typesGo, err := os.Create(output + "/types.go")
 	handleErr(err)
 	defer typesGo.Close()
 
@@ -72,11 +79,11 @@ func main() {
 	typesTemplate.Execute(typesGo, data)
 
 	// format the file
-	cmd := exec.Command("gofmt", "-w", *output)
+	cmd := exec.Command("gofmt", "-w", output)
 	err = cmd.Run()
 	handleErr(err)
-}
 
+}
 func getTableInfo(conn *sql.DB, schema string) []table {
 	var data []table
 	var tableID = 0
