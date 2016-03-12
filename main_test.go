@@ -2,19 +2,13 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-func TestMain(m *testing.M) {
-	flag.Parse()
-	os.Exit(m.Run())
-}
 func TestConvertType(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "string", convertType("time"), "should be string")
