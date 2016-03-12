@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -62,4 +63,10 @@ func TestGetTableInfo(t *testing.T) {
 	mock.ExpectQuery("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE").WillReturnRows(colRowsTwo)
 	data := getTableInfo(db, "some_schema")
 	assert.EqualValues(t, expected, data, "should be equal")
+}
+func TestHandleError(t *testing.T) {
+	t.Parallel()
+	assert.Panics(t, func() {
+		handleErr(errors.New("some error"))
+	}, "Calling handleErr() should panic")
 }
