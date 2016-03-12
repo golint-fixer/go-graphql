@@ -56,9 +56,9 @@ func main() {
 // directory and fmt them
 func processTemplates(data []table, output string) {
 	// parse templates
-	structTemplate, err := template.ParseFiles("struct.tmpl")
+	structTemplate, err := template.ParseFiles("templates/struct.tmpl")
 	handleErr(err)
-	typesTemplate, err := template.ParseFiles("types.tmpl")
+	typesTemplate, err := template.ParseFiles("templates/types.tmpl")
 	handleErr(err)
 
 	// create directory
