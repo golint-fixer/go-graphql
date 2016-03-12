@@ -15,6 +15,16 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Column struct {
+	ColumnName   string
+	ColumnType   string
+	DBColumnName string
+}
+type Table struct {
+	TableName string
+	Cols      []Column
+}
+
 func main() {
 	hostname := flag.String("hostname", "", "hostname")
 	username := flag.String("username", "", "username")
@@ -24,49 +34,8 @@ func main() {
 	output := flag.String("output", "", "output")
 	flag.Parse()
 
-	//db, err := sql.Open("postgres", fmt.Sprintf("host=%v user=%v dbname=%v password=%v port=%v sslmode=disable", hostname, username, schema, password, port))
-	conn, err := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8", *username, *password, *hostname, *port, *schema))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-
-	err = conn.Ping()
-	handleErr(err)
-
-	type Column struct {
-		ColumnName   string
-		ColumnType   string
-		DBColumnName string
-	}
-	type Table struct {
-		TableName string
-		Cols      []Column
-	}
-
-	var data [3]Table
-	var tableID = 0
-	tables, err := conn.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%v' ORDER BY table_name DESC;", *schema))
-	handleErr(err)
-	for tables.Next() {
-		var tableName string
-		err = tables.Scan(&tableName)
-		handleErr(err)
-		data[tableID].TableName = formatColName(tableName)
-		var col []Column
-		columns, err := conn.Query(fmt.Sprintf("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '%v' AND table_schema = '%v';", tableName, *schema))
-
-		for columns.Next() {
-			var colName string
-			var colType string
-			err = columns.Scan(&colName, &colType)
-			handleErr(err)
-			formatColName(colName)
-			col = append(col, Column{formatColName(colName), convertType(colType), colName})
-		}
-		data[tableID].Cols = col
-		tableID++
-	}
+	// get table structure from DB
+	data := getTableInfo(*username, *password, *hostname, *port, *schema)
 
 	// process templates
 	structTemplate, err := template.ParseFiles("struct.tmpl")
@@ -95,6 +64,43 @@ func main() {
 	cmd := exec.Command("gofmt", "-w", *output)
 	err = cmd.Run()
 	handleErr(err)
+}
+
+func getTableInfo(username, password, hostname, port, schema string) []Table {
+	//db, err := sql.Open("postgres", fmt.Sprintf("host=%v user=%v dbname=%v password=%v port=%v sslmode=disable", hostname, username, schema, password, port))
+	conn, err := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8", username, password, hostname, port, schema))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	err = conn.Ping()
+	handleErr(err)
+
+	var data []Table
+	var tableID = 0
+	tables, err := conn.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%v' ORDER BY table_name DESC;", schema))
+	handleErr(err)
+	for tables.Next() {
+		var tableName string
+		err = tables.Scan(&tableName)
+		handleErr(err)
+		var col []Column
+		data = append(data, Table{formatColName(tableName), col})
+		columns, err := conn.Query(fmt.Sprintf("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '%v' AND table_schema = '%v';", tableName, schema))
+
+		for columns.Next() {
+			var colName string
+			var colType string
+			err = columns.Scan(&colName, &colType)
+			handleErr(err)
+			formatColName(colName)
+			col = append(col, Column{formatColName(colName), convertType(colType), colName})
+		}
+		data[tableID].Cols = col
+		tableID++
+	}
+	return data
 }
 
 // formatColName formats the column name into camel case
