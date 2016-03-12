@@ -15,14 +15,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Column struct {
+type column struct {
 	ColumnName   string
 	ColumnType   string
 	DBColumnName string
 }
-type Table struct {
+type table struct {
 	TableName string
-	Cols      []Column
+	Cols      []column
 }
 
 func main() {
@@ -34,8 +34,19 @@ func main() {
 	output := flag.String("output", "", "output")
 	flag.Parse()
 
+	// connect to db
+	//db, err := sql.Open("postgres", fmt.Sprintf("host=%v user=%v dbname=%v password=%v port=%v sslmode=disable", hostname, username, schema, password, port))
+	conn, err := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8", *username, *password, *hostname, *port, *schema))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	err = conn.Ping()
+	handleErr(err)
+
 	// get table structure from DB
-	data := getTableInfo(*username, *password, *hostname, *port, *schema)
+	data := getTableInfo(conn, *schema)
 
 	// process templates
 	structTemplate, err := template.ParseFiles("struct.tmpl")
@@ -66,36 +77,29 @@ func main() {
 	handleErr(err)
 }
 
-func getTableInfo(username, password, hostname, port, schema string) []Table {
-	//db, err := sql.Open("postgres", fmt.Sprintf("host=%v user=%v dbname=%v password=%v port=%v sslmode=disable", hostname, username, schema, password, port))
-	conn, err := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8", username, password, hostname, port, schema))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-
-	err = conn.Ping()
-	handleErr(err)
-
-	var data []Table
+func getTableInfo(conn *sql.DB, schema string) []table {
+	var data []table
 	var tableID = 0
+	// get table information
 	tables, err := conn.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%v' ORDER BY table_name DESC;", schema))
 	handleErr(err)
 	for tables.Next() {
 		var tableName string
 		err = tables.Scan(&tableName)
 		handleErr(err)
-		var col []Column
-		data = append(data, Table{formatColName(tableName), col})
+
+		// get column information
+		var col []column
+		data = append(data, table{formatColName(tableName), col})
 		columns, err := conn.Query(fmt.Sprintf("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '%v' AND table_schema = '%v';", tableName, schema))
+		handleErr(err)
 
 		for columns.Next() {
 			var colName string
 			var colType string
 			err = columns.Scan(&colName, &colType)
 			handleErr(err)
-			formatColName(colName)
-			col = append(col, Column{formatColName(colName), convertType(colType), colName})
+			col = append(col, column{formatColName(colName), convertType(colType), colName})
 		}
 		data[tableID].Cols = col
 		tableID++
