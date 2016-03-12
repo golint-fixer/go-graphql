@@ -15,8 +15,11 @@ func TestConvertType(t *testing.T) {
 	assert.Equal(t, "int", convertType("integer"), "should be integer")
 	assert.Equal(t, "int", convertType("int"), "should be integer")
 	assert.Equal(t, "int", convertType("timestamp"), "should be integer")
+	assert.Equal(t, "float", convertType("float"), "should be float")
+	assert.Equal(t, "float", convertType("bouble"), "should be float")
 	assert.Equal(t, "bool", convertType("boolean"), "should be bool")
 	assert.Equal(t, "string", convertType("enum"), "should be string")
+	assert.Equal(t, "string", convertType("other"), "should be string")
 }
 func TestTormatColName(t *testing.T) {
 	assert.Equal(t, "Id", formatColName("id"), "should be Id")
