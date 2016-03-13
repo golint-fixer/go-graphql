@@ -1,6 +1,6 @@
 # sql2graphql
 [![Build Status](https://travis-ci.org/kmulvey/sql2graphql.svg?branch=master)](https://travis-ci.org/kmulvey/sql2graphql)
-[![Coverage Status](https://coveralls.io/repos/github/kmulvey/gographql/badge.svg?branch=master)](https://coveralls.io/github/kmulvey/gographql?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/kmulvey/sql2graphql/badge.svg?branch=master)](https://coveralls.io/github/kmulvey/sql2graphql?branch=master)
 
 Generate a graphql schema in Go from an existing sql database.
 
