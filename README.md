@@ -1,6 +1,6 @@
-# sql2graphql
-[![Build Status](https://travis-ci.org/kmulvey/sql2graphql.svg?branch=master)](https://travis-ci.org/kmulvey/sql2graphql)
-[![Coverage Status](https://coveralls.io/repos/github/kmulvey/sql2graphql/badge.svg?branch=master)](https://coveralls.io/github/kmulvey/sql2graphql?branch=master)
+# Go Graphql
+[![Build Status](https://travis-ci.org/kmulvey/go-graphql.svg?branch=master)](https://travis-ci.org/kmulvey/go-graphql)
+[![Coverage Status](https://coveralls.io/repos/github/kmulvey/go-graphql/badge.svg?branch=master)](https://coveralls.io/github/kmulvey/go-graphql?branch=master)
 
 Generate a graphql schema in Go from an existing sql database.
 
@@ -9,9 +9,9 @@ This is currently alpha software that "works" for mysql but thats about it, [hel
 
 ## Usage
 
-  `go install github.com/kmulvey/sql2graphql`
+  `go install github.com/kmulvey/go-graphql`
   
-  `sql2graphql [options]`
+  `go-graphql [options]`
 
 ### Options:
   
