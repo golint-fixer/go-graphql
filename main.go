@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"unicode"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -55,10 +56,17 @@ func main() {
 // processTemplates fills in the templates with data, puts them in the output
 // directory and fmt them
 func processTemplates(data []table, output string) {
+	// some template filters
+	funcMap := template.FuncMap{
+		"ToLower":  strings.ToLower,
+		"CapFirst": capFirst,
+	}
+
 	// parse templates
 	structTemplate, err := template.ParseFiles("templates/struct.tmpl")
 	handleErr(err)
-	typesTemplate, err := template.ParseFiles("templates/types.tmpl")
+	typesTemplate := template.New("types.tmpl").Funcs(funcMap)
+	_, err = typesTemplate.ParseFiles("templates/types.tmpl")
 	handleErr(err)
 
 	// create directory
@@ -75,8 +83,10 @@ func processTemplates(data []table, output string) {
 	defer typesGo.Close()
 
 	// exec templates
-	structTemplate.Execute(structGo, data)
-	typesTemplate.Execute(typesGo, data)
+	err = structTemplate.Execute(structGo, data)
+	handleErr(err)
+	err = typesTemplate.Execute(typesGo, data)
+	handleErr(err)
 
 	// format the file
 	cmd := exec.Command("gofmt", "-w", output)
@@ -84,6 +94,8 @@ func processTemplates(data []table, output string) {
 	handleErr(err)
 
 }
+
+// getTableInfo retrieves schema information from the database
 func getTableInfo(conn *sql.DB, schema string) []table {
 	var data []table
 	var tableID = 0
@@ -112,6 +124,13 @@ func getTableInfo(conn *sql.DB, schema string) []table {
 		tableID++
 	}
 	return data
+}
+
+// capFirst capitalized the first character of a string
+func capFirst(input string) string {
+	arr := []byte(input)
+	arr[0] = byte(unicode.ToUpper(rune(arr[0])))
+	return string(arr)
 }
 
 // formatColName formats the column name into camel case

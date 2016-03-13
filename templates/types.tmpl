@@ -18,3 +18,27 @@ import (
 		},
 	)
 {{end}}
+
+var queryType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "Query",
+		Fields: graphql.Fields{
+			{{range .}}
+				"{{.TableName | ToLower }}": &graphql.Field{
+					Type: {{.TableName | ToLower }}Type,
+					Args: graphql.FieldConfigArgument{
+				{{range .Cols}}
+						"{{ .DBColumnName | ToLower }}": &graphql.ArgumentConfig{
+							Type: graphql.{{ .ColumnType | CapFirst }},
+						},
+				{{- end}}
+					},
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						// run database code here
+						ag := &models.{{.TableName}}{}
+						return ag, nil
+					},
+				},
+			{{end}}
+		},
+	})

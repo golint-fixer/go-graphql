@@ -31,6 +31,13 @@ func TestConvertType(t *testing.T) {
 	assert.Equal(t, "string", convertType("enum"), "should be string")
 	assert.Equal(t, "string", convertType("other"), "should be string")
 }
+
+func TestCapFirst(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, "String", capFirst("string"), "should be \"String\"")
+	assert.Equal(t, "Int", capFirst("int"), "should be \"Int\"")
+}
+
 func TestTormatColName(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "Id", formatColName("id"), "should be Id")
@@ -39,6 +46,7 @@ func TestTormatColName(t *testing.T) {
 	assert.Equal(t, "Col5", formatColName("col_5"), "should be Col5")
 	assert.Equal(t, "Code", formatColName("code"), "should be Code")
 }
+
 func TestGetTableInfo(t *testing.T) {
 	t.Parallel()
 
@@ -65,12 +73,14 @@ func TestGetTableInfo(t *testing.T) {
 	data := getTableInfo(db, "some_schema")
 	assert.EqualValues(t, expected, data, "should be equal")
 }
+
 func TestHandleError(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
 		handleErr(errors.New("some error"))
 	}, "Calling handleErr() should panic")
 }
+
 func TestProcessTemplates(t *testing.T) {
 	t.Parallel()
 	var dir = "dist"
