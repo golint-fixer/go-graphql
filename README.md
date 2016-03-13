@@ -9,7 +9,12 @@ This is currently alpha software that "works" for mysql but thats about it, [hel
 
 ## Usage
 
+  `go install github.com/kmulvey/sql2graphql`
+  
+  `sql2graphql [options]`
+
 ### Options:
+  
   
   - `--output`    - Directory to use when generating code *`(string [required])`*
   - `--schema`    - Schema name *`(string [required])`*
