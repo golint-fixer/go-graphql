@@ -11,8 +11,8 @@ import (
 )
 
 var expected = []table{
-	table{"Tableone", []column{column{"Id", "int", "id"}, column{"Name", "string", "name"}}},
-	table{"Tabletwo", []column{column{"Id", "int", "id"}, column{"Name", "string", "name"}}},
+	{"Tableone", []column{{"Id", "int", "id"}, {"Name", "string", "name"}}},
+	{"Tabletwo", []column{{"Id", "int", "id"}, {"Name", "string", "name"}}},
 }
 
 func TestConvertType(t *testing.T) {
