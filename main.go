@@ -194,7 +194,7 @@ func convertType(dbType string) string {
 	}
 }
 
-// handleErr handles errors in a consistant way
+// handleErr handles errors in a consistent way
 func handleErr(err error) {
 	if err != nil {
 		panic(err)
