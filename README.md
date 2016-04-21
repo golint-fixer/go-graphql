@@ -1,6 +1,7 @@
 # Go Graphql
 [![Build Status](https://travis-ci.org/kmulvey/go-graphql.svg?branch=master)](https://travis-ci.org/kmulvey/go-graphql)
 [![Coverage Status](https://coveralls.io/repos/github/kmulvey/go-graphql/badge.svg?branch=master)](https://coveralls.io/github/kmulvey/go-graphql?branch=master)
+[![Go Report](https://img.shields.io/badge/go_report-A+-brightgreen.svg)](https://goreportcard.com/report/github.com/kmulvey/go-graphql)
 
 Generate a graphql schema in Go from an existing sql database.
 
