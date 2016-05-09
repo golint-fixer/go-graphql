@@ -33,6 +33,7 @@ func main() {
 	schema := flag.String("schema", "", "schema")
 	port := flag.String("port", "", "port")
 	output := flag.String("output", "", "output")
+	//engine := flag.String("engine", "", "engine")
 	flag.Parse()
 
 	// connect to db
@@ -100,7 +101,7 @@ func getTableInfo(conn *sql.DB, schema string) []table {
 	var data []table
 	var tableID = 0
 	// get table information
-	tables, err := conn.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%v' ORDER BY table_name DESC;", schema))
+	tables, err := conn.Query("SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE' and table_schema=?", schema)
 	handleErr(err)
 	for tables.Next() {
 		var tableName string
